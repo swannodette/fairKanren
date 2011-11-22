@@ -1,8 +1,13 @@
-#lang r6rs
-
 (library
  (fk)
- (export)
+ (export
+  ==
+  succeed
+  fail
+  run
+  fresh
+  fresh*
+  conde)
  (import (rnrs))
 
  (define-syntax CONS
