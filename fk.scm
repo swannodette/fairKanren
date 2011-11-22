@@ -87,10 +87,11 @@
          ((equal? u v) s)
          (else #f)))))
 
- (define reify
-   (lambda (v s)
-     (let ((v (walk* v s)))
-       (walk* v (reify-s v empty-s)))))
+ (define reify ;; changed
+   (lambda (x)
+     (lambda (a)
+       (let ((v (walk* x a)))
+         (cons (walk* v (reify-s v empty-s)) '())))))
 
  (define walk*
    (lambda (v s)
@@ -168,26 +169,26 @@
            (let ((a (car a-inf)) (f (cdr a-inf))) e4))
           (else (let ((ap a-inf)) e3)))))))
 
- (define-syntax run ;;; changed
-   (syntax-rules ()
-     ((_ n (x) g0 g ...)
-      (let ((x (var 'x)))
-        (map (lambda (a) (reify x a))
-             (take n
-                   (lambdaf@ ()
-                     ((fresh () g0 g ...) empty-s))))))))
+(define-syntax run ;;; changed
+  (syntax-rules ()
+    ((_ n (x) g0 g1 ...)
+     (take n
+       (lambdaf@ ()
+         ((fresh* (x)
+            g0 g1 ...
+            (reify x))
+          empty-s))))))
 
  (define take ;;; changed
    (lambda (n f)
-     (display "take: ") (display (f)) (display "\n")
      (if (and n (zero? n))
          '()
          (case-inf (f)
            (() '())
            ((f) (take n f))
            ((gp ap) (take n (lambda () (bind ap gp))))
-           ((a) (list a))
-           ((a f) (cons a (take (and n (- n 1)) f)))))))
+           ((a) a)
+           ((a f) (cons (car a) (take (and n (- n 1)) f)))))))
 
  (define-syntax fresh ;;; changed
    (syntax-rules ()
