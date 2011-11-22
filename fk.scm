@@ -206,6 +206,12 @@
       (let ((gq (lambdag@ (a) (bind* (g0 a) g1 ...))))
         (CONS gq e)))))
 
+ (define-syntax bind-seq* ;;; added
+   (syntax-rules ()
+     ((_ e) e)
+     ((_ e g0 g1 ...)
+      (bind-seq* (bind e g0) g1 ...))))
+
  (define bind ;;; changed
    (lambda (a-inf g)
      (case-inf a-inf
