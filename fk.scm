@@ -218,7 +218,7 @@
    (syntax-rules ()
      ((_ e) e)
      ((_ e g0 g1 ...)
-      (bind-seq* (bind e g0) g1 ...))))
+      (bind-seq* (bind* e (take* g0)) g1 ...))))
 
  (define bind ;;; changed
    (lambda (a-inf g)
