@@ -266,5 +266,5 @@
        ((f) (force* (f)))
        ((g a) (force* (bind a g)))
        ((a) a)
-       ((a f) (choice a (lambdaf@ () (force* (f)))))))) 
+       ((a f) (choice a (lambdaf@ () (force* (f))))))))
  )
