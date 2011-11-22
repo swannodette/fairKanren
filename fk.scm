@@ -239,4 +239,12 @@
        ((a) (choice a f))
        ((a fp) (choice a (lambdaf@ () (mplus (f) fp)))))))
 
+ (define force* ;;; added
+   (lambda (a-inf)
+     (case-inf a-inf
+       (() (mzero))
+       ((f) (force* (f)))
+       ((gp ap) (force* (bind ap gp)))
+       ((a) a)
+       ((a f) (choice a (lambdaf@ () (force* (f))))))))
  )
