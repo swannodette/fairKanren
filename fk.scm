@@ -186,7 +186,7 @@
          (case-inf (f)
            (() '())
            ((f) (take n f))
-           ((gp ap) (take n (lambda () (bind ap gp))))
+           ((g a) (take n (lambda () (bind a g))))
            ((a) a)
            ((a f) (cons (car a) (take (and n (- n 1)) f)))))))
 
@@ -226,7 +226,7 @@
      (case-inf a-inf
        (() (mzero))
        ((f) (inc (bind (f) g)))
-       ((gp ap) (CONS gp (inc (bind ap g))))
+       ((g^ a) (CONS g^ (inc (bind a g))))
        ((a) (g a))
        ((a f) (mplus (g a) (lambdaf@ () (bind (f) g)))))))
 
@@ -250,7 +250,7 @@
      (case-inf a-inf
        (() (f))
        ((fp) (inc (mplus (f) fp)))
-       ((gp ap) (inc (mplus (f) (lambdaf@ () (bind ap gp)))))
+       ((g a) (inc (mplus (f) (lambdaf@ () (bind a g)))))
        ((a) (choice a f))
        ((a fp) (choice a (lambdaf@ () (mplus (f) fp)))))))
 
@@ -264,7 +264,7 @@
      (case-inf a-inf
        (() (mzero))
        ((f) (force* (f)))
-       ((gp ap) (force* (bind ap gp)))
+       ((g a) (force* (bind a g)))
        ((a) a)
        ((a f) (choice a (lambdaf@ () (force* (f))))))))
  )
