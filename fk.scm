@@ -1,4 +1,4 @@
-#lang r6rs
+;#lang r6rs
 
 (library
  (fk)
@@ -209,24 +209,24 @@
 
  (define-syntax fresh* ;;; added
    (syntax-rules ()
-     ((_ (x ...) g0 g1 ...)
+     ((_ (x ...) g0 g ...)
       (lambdag@ (a)
         (inc
          (let ((x (var 'x)) ...)
-           (bind-seq* (bind a (take* g0)) g1 ...)))))))
+           (bind-seq* (bind a (lambdag@ (a) (force* (g0 a)))) g ...)))))))
 
  (define-syntax bind* ;;; changed
    (syntax-rules ()
      ((_ e) e)
-     ((_ e g0 g1 ...)
-      (let ((gq (lambdag@ (a) (bind* (g0 a) g1 ...))))
+     ((_ e g0 g ...)
+      (let ((gq (lambdag@ (a) (bind* (g0 a) g ...))))
         (CONS gq e)))))
 
  (define-syntax bind-seq* ;;; added
    (syntax-rules ()
      ((_ e) e)
-     ((_ e g0 g1 ...)
-      (bind-seq* (bind e (take* g0)) g1 ...))))
+     ((_ e g0 g ...)
+      (bind-seq* (bind e (lambdag@ (a) (force* (g0 a)))) g ...))))
 
  (define bind ;;; changed
    (lambda (a-inf g)
@@ -260,11 +260,6 @@
        ((g b-inf) (inc (mplus (f) (lambdaf@ () (bind b-inf g)))))
        ((a) (choice a f))
        ((a fp) (choice a (lambdaf@ () (mplus (f) fp)))))))
-
- (define take* ;;; added
-   (lambda (g)
-     (lambdag@ (a)
-       (force* (g a)))))
 
  (define force* ;;; added
    (lambda (a-inf)
