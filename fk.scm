@@ -87,7 +87,7 @@
          ((equal? u v) s)
          (else #f)))))
 
- (define reify ;; changed
+ (define reify ;;; changed
    (lambda (x)
      (lambda (a)
        (let ((v (walk* x a)))
@@ -254,7 +254,7 @@
        ((a) (choice a f))
        ((a fp) (choice a (lambdaf@ () (mplus (f) fp)))))))
 
- (define take*
+ (define take* ;;; added
    (lambda (g)
      (lambdag@ (a)
        (force* (g a)))))
