@@ -6,3 +6,29 @@
 *** do we need some notion of ready?
 *** we need this if we want to mix fair goals and non-fair goals
 *** we don't want lazy goals to get pushed inside take* goals
+*** any subgoal might be lazy
+For example
+#+begin_src scheme
+(fresh* ()
+  (take* (appendo l s '(a b c d e)))
+  (take* reify))
+#+end_src
+
+But
+#+begin_src scheme
+(take* (appendo l s '(a b c d e)))
+#+end_src
+
+Becomes
+#+begin_src 
+(lambdag@ (a)
+  (letrec loop ((appendo l s '(a b c d e)) a)
+    (case-inf
+      () a
+      (f) a
+      (g a) (loop (bind a g))
+      (a f) a
+      (a) a)))
+#+end_src
+
+Seems promising.
