@@ -245,6 +245,11 @@
        ((a) (choice a f))
        ((a fp) (choice a (lambdaf@ () (mplus (f) fp)))))))
 
+ (define take*
+   (lambda (g)
+     (lambdag@ (a)
+       (force* (g a)))))
+
  (define force* ;;; added
    (lambda (a-inf)
      (case-inf a-inf
