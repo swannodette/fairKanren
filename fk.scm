@@ -1,5 +1,3 @@
-;#lang r6rs
-
 (library
  (fk)
  (export
