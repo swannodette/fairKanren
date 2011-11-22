@@ -202,8 +202,10 @@
  (define-syntax fresh* ;;; added
    (syntax-rules ()
      ((_ (x ...) g0 g1 ...)
-      (fresh (x ...)
-        (bind-seq* (take* g0) (take* g1) ...)))))
+      (lambdag@ (a)
+        (inc
+         (let ((x (var 'x)) ...)
+           (bind-seq* (bind a (take* g0)) g1 ...)))))))
 
  (define-syntax bind* ;;; changed
    (syntax-rules ()
