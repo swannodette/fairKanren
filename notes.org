@@ -1,9 +1,8 @@
-fairKanren
-
-* fresh*
-** take*, ensures that a goal always returns (), (a), (f), (a f)
-** take* takes a goal and returns a new goal
-** conde* ?
-** do we need some notion of ready?
-** we need this if we want to mix fair goals and non-fair goals
-** we don't want lazy goals to get pushed inside take* goals
+* fairKanren
+** fresh*
+*** take*, ensures that a goal always returns (), (a), (f), (a f)
+*** take* takes a goal and returns a new goal
+*** conde* ?
+*** do we need some notion of ready?
+*** we need this if we want to mix fair goals and non-fair goals
+*** we don't want lazy goals to get pushed inside take* goals
