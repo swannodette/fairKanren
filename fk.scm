@@ -169,15 +169,15 @@
            (let ((a (car a-inf)) (f (cdr a-inf))) e4))
           (else (let ((ap a-inf)) e3)))))))
 
-(define-syntax run ;;; changed
-  (syntax-rules ()
-    ((_ n (x) g0 g1 ...)
-     (take n
-       (lambdaf@ ()
-         ((fresh* (x)
-            g0 g1 ...
-            (reify x))
-          empty-s))))))
+ (define-syntax run ;;; changed
+   (syntax-rules ()
+     ((_ n (x) g0 g1 ...)
+      (take n
+            (lambdaf@ ()
+              ((fresh* (x)
+                       g0 g1 ...
+                       (reify x))
+               empty-s))))))
 
  (define take ;;; changed
    (lambda (n f)
