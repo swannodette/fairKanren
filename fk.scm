@@ -1,16 +1,16 @@
-;;; #lang r6rs
+#lang r6rs
 
 (library
-  (fk)
-  (export
-   ==
-   succeed
-   fail
-   run
-   fresh
-   fresh*
-   conde)
-  (import (rnrs))
+ (fk)
+ (export
+  ==
+  succeed
+  fail
+  run
+  fresh
+  fresh*
+  conde)
+ (import (rnrs))
 
  (define-syntax CONS
    (syntax-rules ()
@@ -233,7 +233,7 @@
      (case-inf a-inf
        (() (mzero))
        ((f) (inc (bind (f) g)))
-       ((g^ a-inf) (CONS g^ (inc (bind a-inf g))))
+       ((g^ b-inf) (CONS g^ (inc (bind b-inf g))))
        ((a) (g a))
        ((a f) (mplus (g a) (lambdaf@ () (bind (f) g)))))))
 
@@ -257,7 +257,7 @@
      (case-inf a-inf
        (() (f))
        ((fp) (inc (mplus (f) fp)))
-       ((g a-inf) (inc (mplus (f) (lambdaf@ () (bind a-inf g)))))
+       ((g b-inf) (inc (mplus (f) (lambdaf@ () (bind b-inf g)))))
        ((a) (choice a f))
        ((a fp) (choice a (lambdaf@ () (mplus (f) fp)))))))
 
