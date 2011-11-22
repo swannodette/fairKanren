@@ -173,11 +173,11 @@
    (syntax-rules ()
      ((_ n (x) g0 g1 ...)
       (take n
-            (lambdaf@ ()
-              ((fresh* (x)
-                       g0 g1 ...
-                       (reify x))
-               empty-s))))))
+        (lambdaf@ ()
+          ((fresh* (x)
+             (fresh () g0 g1 ...)
+             (reify x))
+           empty-s))))))
 
  (define take ;;; changed
    (lambda (n f)
@@ -266,5 +266,5 @@
        ((f) (force* (f)))
        ((g a) (force* (bind a g)))
        ((a) a)
-       ((a f) (choice a (lambdaf@ () (force* (f))))))))
+       ((a f) (choice a (lambdaf@ () (force* (f)))))))) 
  )
