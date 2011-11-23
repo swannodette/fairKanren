@@ -127,12 +127,6 @@
    (syntax-rules ()
      ((_ () e) (lambda () e))))
 
- (define succeed
-   (lambdag@ (a) a))
-
- (define fail
-   (lambdag@ (a) (mzero)))
-
  (define-syntax mzero
    (syntax-rules ()
      ((_) #f)))
@@ -144,6 +138,12 @@
  (define-syntax choice
    (syntax-rules ()
      ((_ a f) (cons a f))))
+
+ (define succeed
+   (lambdag@ (a) (unit a)))
+
+ (define fail
+   (lambdag@ (a) (mzero)))
 
  (define-syntax ==
    (syntax-rules ()
@@ -195,30 +195,24 @@
            ((a) a)
            ((a f) (cons (car a) (take (and n (- n 1)) f)))))))
 
- (define-syntax fresh ;;; changed
-   (syntax-rules ()
-     ((_ (x ...) g0 g ...)
-      (lambdag@ (a)
-        (let ((gq (lambda (a)
-                    (let ((x (var 'x)) ...)
-                      (let ((gp (lambdag@ (a) (bind* (g0 a) g ...))))
-                        (CONS gp (unit a)))))))
-          (inc (CONS gq a)))))))
-
- (define-syntax fresh* ;;; added
-   (syntax-rules ()
-     ((_ (x ...) g0 g ...)
-      (lambdag@ (a)
-        (inc
+  (define-syntax fresh ;;; changed
+    (syntax-rules ()
+      ((_ (x ...) g0 g ...)
+       (lambdag@ (a)
          (let ((x (var 'x)) ...)
-           (bind-seq* (bind a (lambdag@ (a) (force* (g0 a)))) g ...)))))))
+           (inc (bind* (unit a) g0 g ...)))))))
+  
+  (define-syntax bind* ;;; changed
+    (syntax-rules ()
+      ((_ e) e)
+      ((_ e g0 g ...) (CONS (lambdag@ (a) (bind* (g0 a) g ...)) e))))
 
- (define-syntax bind* ;;; changed
-   (syntax-rules ()
-     ((_ e) e)
-     ((_ e g0 g ...)
-      (let ((gq (lambdag@ (a) (bind* (g0 a) g ...))))
-        (CONS gq e)))))
+  (define-syntax fresh* ;;; added
+    (syntax-rules ()
+      ((_ (x ...) g0 g ...)
+       (lambdag@ (a)
+         (let ((x (var 'x)) ...)
+           (inc (bind-seq* (unit a) g0 g ...)))))))
 
  (define-syntax bind-seq* ;;; added
    (syntax-rules ()
@@ -226,24 +220,34 @@
      ((_ e g0 g ...)
       (bind-seq* (bind e (lambdag@ (a) (force* (g0 a)))) g ...))))
 
- (define bind ;;; changed
-   (lambda (a-inf g)
+  (define force* ;;; added
+   (lambda (a-inf)
      (case-inf a-inf
        (() (mzero))
-       ((f) (inc (bind (f) g)))
-       ((g^ b-inf) (CONS g^ (inc (bind b-inf g))))
-       ((a) (g a))
-       ((a f) (mplus (g a) (lambdaf@ () (bind (f) g)))))))
+       ((f) (force* (f)))
+       ((g b-inf) (force* (bind b-inf g)))
+       ((a) a)
+       ((a f) (choice a (lambdaf@ () (force* (f))))))))
+
+   (define bind ;;; changed
+     (lambda (a-inf g)
+       (case-inf a-inf
+         (() (mzero))
+         ((f) (inc (bind (f) g)))
+         ((g^ b-inf) (CONS g^ (bind b-inf g))) ;;; got rid of (inc ...) around (bind ...).
+         ((a) (g a))
+         ((a f) (mplus (g a) (lambdaf@ () (bind (f) g)))))))
 
  (define-syntax conde ;;; changed
    (syntax-rules ()
      ((_ (g0 g ...) (g1 gp ...) ...)
       (lambdag@ (a)
-        (let ((gq (lambda (a)
-                    (mplus* ((fresh () g0 g ...) a)
-                            ((fresh () g1 gp ...) a)
-                            ...))))
-          (inc (CONS gq (unit a))))))))
+        (inc (CONS
+               (lambdag@ (a)
+                 (mplus* ((fresh () g0 g ...) a)
+                         ((fresh () g1 gp ...) a)
+                         ...))
+               (unit a)))))))
 
  (define-syntax mplus*
    (syntax-rules ()
@@ -258,13 +262,4 @@
        ((g b-inf) (inc (mplus (f) (lambdaf@ () (bind b-inf g)))))
        ((a) (choice a f))
        ((a fp) (choice a (lambdaf@ () (mplus (f) fp)))))))
-
- (define force* ;;; added
-   (lambda (a-inf)
-     (case-inf a-inf
-       (() (mzero))
-       ((f) (force* (f)))
-       ((g b-inf) (force* (bind b-inf g)))
-       ((a) a)
-       ((a f) (choice a (lambdaf@ () (force* (f))))))))
  )
