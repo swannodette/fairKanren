@@ -200,8 +200,8 @@
       ((_ (x ...) g0 g ...)
        (lambdag@ (a)
          (let ((x (var 'x)) ...)
-           (inc (CONS (lambdag@ (a) (bind* (unit a) g0 g ...)) a)))))))
-
+           (inc (bind* (unit a) g0 g ...)))))))
+  
   (define-syntax bind* ;;; changed
     (syntax-rules ()
       ((_ e) e)
@@ -211,9 +211,8 @@
     (syntax-rules ()
       ((_ (x ...) g0 g ...)
        (lambdag@ (a)
-         (inc
-           (let ((x (var 'x)) ...)
-             (bind-seq* (unit a) g0 g ...)))))))
+         (let ((x (var 'x)) ...)
+           (inc (bind-seq* (unit a) g0 g ...)))))))
 
  (define-syntax bind-seq* ;;; added
    (syntax-rules ()
