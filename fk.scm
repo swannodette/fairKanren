@@ -1,14 +1,27 @@
 (library
  (fk)
  (export
+  lhs
+  rhs
+  walk
+  walk*
+  ext-s
+  occurs-check
+  reify-s
+  reify
   ==
+  var
   succeed
   fail
   run
   run*
   fresh
   fresh*
-  conde)
+  conde
+  condu
+  conda
+  project
+  onceo)
  (import (rnrs))
 
  (define-syntax CONS
@@ -269,4 +282,53 @@
        ((g b-inf) (inc (mplus (f) (lambdaf@ () (bind b-inf g)))))
        ((a) (choice a f))
        ((a fp) (choice a (lambdaf@ () (mplus (f) fp)))))))
+
+ (define-syntax conda
+   (syntax-rules ()
+     ((_ (g0 g ...) (g1 g^ ...) ...)
+      (lambdag@ (a)
+        (inc
+         (ifa ((g0 a) g ...)
+              ((g1 a) g^ ...) ...))))))
+ 
+ (define-syntax ifa
+   (syntax-rules ()
+     ((_) (mzero))
+     ((_ (e g ...) b ...)
+      (let loop ((a-inf e))
+        (case-inf a-inf
+          (() (ifa b ...))
+          ((f) (inc (loop (f))))
+          ((g^ b-inf) (inc (loop (bind b-inf g^))))
+          ((a) (bind* a-inf g ...))
+          ((a f) (bind* a-inf g ...)))))))
+
+ (define-syntax condu
+   (syntax-rules ()
+     ((_ (g0 g ...) (g1 g^ ...) ...)
+      (lambdag@ (a)
+        (inc
+         (ifu ((g0 a) g ...)
+              ((g1 a) g^ ...) ...))))))
+ 
+ (define-syntax ifu
+   (syntax-rules ()
+     ((_) (mzero))
+     ((_ (e g ...) b ...)
+      (let loop ((a-inf e))
+        (case-inf a-inf
+          (() (ifu b ...))
+          ((f) (inc (loop (f))))
+          ((g^ b-inf) (inc (loop (bind b-inf g^))))
+          ((a) (bind* a-inf g ...))
+          ((a f) (bind* (unit a) g ...)))))))
+ 
+ (define-syntax project 
+   (syntax-rules ()
+     ((_ (x ...) g g* ...)  
+      (lambdag@ (a)
+        (let ((x (walk* x a)) ...)
+          ((fresh () g g* ...) a))))))
+
+ (define onceo (lambda (g) (condu (g))))
  )
