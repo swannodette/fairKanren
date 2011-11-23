@@ -21,8 +21,13 @@
   condu
   conda
   project
-  onceo)
- (import (rnrs))
+  onceo
+  trace-vars)
+ (import
+  (rnrs)
+  (only (chezscheme)
+        pretty-print
+        printf))
 
  (define-syntax CONS
    (syntax-rules ()
@@ -192,11 +197,11 @@
    (syntax-rules ()
      ((_ n (x) g0 g1 ...)
       (take n
-        (lambdaf@ ()
-          ((fresh* (x)
-             (fresh () g0 g1 ...)
-             (reify x))
-           empty-s))))))
+            (lambdaf@ ()
+              ((fresh* (x)
+                 (fresh () g0 g1 ...)
+                 (reify x))
+               empty-s))))))
 
  (define-syntax run*
    (syntax-rules ()
@@ -215,24 +220,24 @@
            ((a) a)
            ((a f) (cons (car a) (take (and n (- n 1)) f)))))))
 
-  (define-syntax fresh ;;; changed
-    (syntax-rules ()
-      ((_ (x ...) g0 g ...)
-       (lambdag@ (a)
-         (let ((x (var 'x)) ...)
-           (inc (bind* (unit a) g0 g ...)))))))
-  
-  (define-syntax bind* ;;; changed
-    (syntax-rules ()
-      ((_ e) e)
-      ((_ e g0 g ...) (CONS (lambdag@ (a) (bind* (g0 a) g ...)) e))))
+ (define-syntax fresh ;;; changed
+   (syntax-rules ()
+     ((_ (x ...) g0 g ...)
+      (lambdag@ (a)
+        (let ((x (var 'x)) ...)
+          (inc (CONS (lambdag@ (a) (bind* (unit a) g0 g ...)) a)))))))
+ 
+ (define-syntax bind* ;;; changed
+   (syntax-rules ()
+     ((_ e) e)
+     ((_ e g0 g ...) (CONS (lambdag@ (a) (bind* (g0 a) g ...)) e))))
 
-  (define-syntax fresh* ;;; added
-    (syntax-rules ()
-      ((_ (x ...) g0 g ...)
-       (lambdag@ (a)
-         (let ((x (var 'x)) ...)
-           (inc (bind-seq* (unit a) g0 g ...)))))))
+ (define-syntax fresh* ;;; added
+   (syntax-rules ()
+     ((_ (x ...) g0 g ...)
+      (lambdag@ (a)
+        (let ((x (var 'x)) ...)
+          (inc (bind-seq* (unit a) g0 g ...)))))))
 
  (define-syntax bind-seq* ;;; added
    (syntax-rules ()
@@ -240,7 +245,7 @@
      ((_ e g0 g ...)
       (bind-seq* (bind e (lambdag@ (a) (force* (g0 a)))) g ...))))
 
-  (define force* ;;; added
+ (define force* ;;; added
    (lambda (a-inf)
      (case-inf a-inf
        (() (mzero))
@@ -249,25 +254,25 @@
        ((a) a)
        ((a f) (choice a (lambdaf@ () (force* (f))))))))
 
-   (define bind ;;; changed
-     (lambda (a-inf g)
-       (case-inf a-inf
-         (() (mzero))
-         ((f) (inc (bind (f) g)))
-         ((g^ b-inf) (CONS g^ (bind b-inf g))) ;;; got rid of (inc ...) around (bind ...).
-         ((a) (g a))
-         ((a f) (mplus (g a) (lambdaf@ () (bind (f) g)))))))
+ (define bind ;;; changed
+   (lambda (a-inf g)
+     (case-inf a-inf
+       (() (mzero))
+       ((f) (inc (bind (f) g)))
+       ((g^ b-inf) (CONS g^ (inc (bind b-inf g))))
+       ((a) (g a))
+       ((a f) (mplus (g a) (lambdaf@ () (bind (f) g)))))))
 
  (define-syntax conde ;;; changed
    (syntax-rules ()
      ((_ (g0 g ...) (g1 gp ...) ...)
       (lambdag@ (a)
         (inc (CONS
-               (lambdag@ (a)
-                 (mplus* ((fresh () g0 g ...) a)
-                         ((fresh () g1 gp ...) a)
-                         ...))
-               (unit a)))))))
+              (lambdag@ (a)
+                (mplus* ((fresh () g0 g ...) a)
+                        ((fresh () g1 gp ...) a)
+                        ...))
+              (unit a)))))))
 
  (define-syntax mplus*
    (syntax-rules ()
@@ -331,4 +336,16 @@
           ((fresh () g g* ...) a))))))
 
  (define onceo (lambda (g) (condu (g))))
+
+ (define-syntax trace-vars
+   (syntax-rules ()
+     ((_ title x ...)
+      (lambdag@ (a)
+        (begin
+          (printf "~a~n" title)
+          (for-each (lambda (x_ t) 
+                      (printf "~a = ~s~n" x_ t))
+                    `(x ...)
+                    ((reify (walk* `(,x ...) a)) a))
+          (unit a))))))
  )
