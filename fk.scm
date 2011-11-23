@@ -5,6 +5,7 @@
   succeed
   fail
   run
+  run*
   fresh
   fresh*
   conde)
@@ -183,6 +184,12 @@
              (fresh () g0 g1 ...)
              (reify x))
            empty-s))))))
+
+ (define-syntax run*
+   (syntax-rules ()
+     ((_ (x) g0 g1 ...)
+      (run #f (x)
+           g0 g1 ...))))
 
  (define take ;;; changed
    (lambda (n f)
