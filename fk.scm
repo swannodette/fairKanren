@@ -243,13 +243,13 @@
    (syntax-rules ()
      ((_ (g0 g ...) (g1 gp ...) ...)
       (lambdag@ (a)
-        (inc (CONS     ;;; is this cons really necessary?  Can you shou an example?
+        (inc (CONS
                (lambdag@ (a)
                  (mplus* ((fresh () g0 g ...) a)
                          ((fresh () g1 gp ...) a)
                          ...))
                (unit a)))))))
- 
+
  (define-syntax mplus*
    (syntax-rules ()
      ((_ e) e)
