@@ -346,6 +346,6 @@
           (for-each (lambda (x_ t) 
                       (printf "~a = ~s~n" x_ t))
                     `(x ...)
-                    ((reify (walk* `(,x ...) a)) a))
+                    (car ((reify `(,x ...)) a)))
           (unit a))))))
  )
